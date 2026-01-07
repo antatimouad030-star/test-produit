@@ -1110,12 +1110,12 @@
     }
     toastClose.addEventListener("click", hideToast);
 
-    /* ✅ FORM + GOOGLE SHEETS (NEW) */
+    /* ✅ FORM + GOOGLE SHEETS (FIXED) */
     const form = document.getElementById("clientForm");
     const formSection = document.getElementById("form");
 
     // 🔥 PUT YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoX5_VmgbkvQ0YyWz0-hsfYeMHcRfr-kZJTa5vOuDKq5QlIcNxNlLgLE_s8x2sKzDI/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoz_1r4AfAivP9PGTZFvfsCOazMFvVihpafVJUy7MbQijSU9vo_YsXloybFpJauf0k/exec";
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -1136,24 +1136,32 @@
 
       showToast("كنسيفطو الطلب…", "مرجو الانتظار", true);
 
+      // ✅ IMPORTANT FIX:
+      // Send as URLSearchParams / form data (Apps Script friendly)
+      const body = new URLSearchParams({
+        fullname: (data.fullname || "").trim(),
+        phone: (data.phone || "").trim(),
+        city: (data.city || "").trim(),
+        address: (data.address || "").trim(),
+        note: (data.note || "").trim()
+      });
+
       fetch(SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullname: data.fullname,
-          phone: data.phone,
-          city: data.city,
-          address: data.address,
-          note: data.note || ""
-        })
+        body
       })
-      .then(res => res.json())
-      .then(res => {
+      .then(async (res) => {
+        // Apps Script sometimes returns text instead of JSON -> handle both
+        const txt = await res.text();
+        try { return JSON.parse(txt); }
+        catch { return { ok: /ok|success|true/i.test(txt), raw: txt }; }
+      })
+      .then((res) => {
         if (res && res.ok) {
           form.reset();
           showToast("تم تسجيل الطلب بنجاح ✅", "غادي يتاصل بك الفريق قريباً", true);
         } else {
-          showToast("وقع مشكل ❌", "حاول مرة أخرى", false);
+          showToast("وقع مشكل ❌", "تأكد من رابط السكريبت ولا الإعدادات", false);
         }
       })
       .catch(() => {
@@ -1360,4 +1368,3 @@
   </script>
 </body>
 </html>
-
