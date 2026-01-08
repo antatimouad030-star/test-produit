@@ -42,7 +42,7 @@
     }
 
     /* ✅ Smooth theme transitions */
-    body, .nav, .section, .product, .review, .toast, .field, .btn, .price-3d{
+    body, .nav, .section, .product, .review, .toast, .field, .btn, .price-3d, .success-modal, .success-card{
       transition:
         background-color .45s ease,
         color .45s ease,
@@ -392,12 +392,32 @@
       padding: 12px 14px; border-radius: 14px;
       position:relative; overflow:hidden;
       display:inline-flex; gap:10px; align-items:center; justify-content:center;
-      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease, background .18s ease;
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
     .btn.primary{ background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 18px 40px rgba(26,167,255,.30); }
     .btn.ghost{ background: rgba(0,0,0,.16); border:1px solid rgba(255,255,255,.14); color: rgba(255,255,255,.9); }
     .btn:hover{ transform: translateY(-2px); filter: brightness(1.06); }
     .btn:active{ transform: translateY(0); filter: brightness(.98); }
+
+    /* ✅ disabled / loading button */
+    .btn[disabled]{
+      cursor: not-allowed;
+      opacity: .68;
+      filter: grayscale(.1) brightness(.95);
+      transform:none !important;
+    }
+    .btn .spinner{
+      width:18px;height:18px;border-radius:999px;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: rgba(255,255,255,.95);
+      animation: spin 0.8s linear infinite;
+      display:none;
+    }
+    .btn.loading .spinner{ display:inline-block; }
+    .btn.loading .btn-text{ opacity:.92; }
+    @keyframes spin{ to{ transform: rotate(360deg);} }
 
     .ripple{
       position:absolute; border-radius:999px; transform: translate(-50%,-50%);
@@ -789,10 +809,144 @@
     }
     .fire-icon::after{ content:none !important; }
 
+    /* =============================== */
+    /* ✅ SUCCESS CELEBRATION (NEW)     */
+    /* =============================== */
+    .success-modal{
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(2,6,12,.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .success-modal.show{ display:grid; animation: modalFadeIn .25s ease both; }
+    @keyframes modalFadeIn{ from{ opacity:0 } to{ opacity:1 } }
+
+    .success-card{
+      width: min(520px, 94vw);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      box-shadow: 0 28px 90px rgba(0,0,0,.55);
+      position: relative;
+      overflow: hidden;
+      transform: translateY(10px) scale(.98);
+      animation: cardPop .55s cubic-bezier(.2,.9,.2,1) both;
+    }
+    @keyframes cardPop{
+      from{ transform: translateY(16px) scale(.96); opacity:0; }
+      to{ transform: translateY(0) scale(1); opacity:1; }
+    }
+    .success-card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(900px 340px at 10% 0%, rgba(72,214,255,.22), transparent 60%),
+        radial-gradient(780px 320px at 90% 10%, rgba(26,167,255,.18), transparent 60%),
+        linear-gradient(120deg, rgba(255,255,255,.08), transparent 40%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    body[data-theme="shopio"] .success-card::before{
+      background:
+        radial-gradient(900px 340px at 10% 0%, rgba(255,122,182,.22), transparent 60%),
+        radial-gradient(780px 320px at 90% 10%, rgba(169,140,255,.20), transparent 60%),
+        linear-gradient(120deg, rgba(255,255,255,.08), transparent 40%);
+    }
+
+    .success-inner{
+      position:relative;
+      padding: 22px 18px 18px;
+      display:grid;
+      gap: 12px;
+      text-align:center;
+    }
+    .success-badge{
+      width: 74px; height: 74px;
+      margin: 4px auto 2px;
+      border-radius: 22px;
+      display:grid; place-items:center;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 20px 55px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .success-badge::after{
+      content:"";
+      position:absolute;
+      inset:-50px;
+      background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,.30) 50%, transparent 65%);
+      transform: translateX(-70%) rotate(12deg);
+      animation: badgeSweep 1.3s ease-in-out infinite;
+      opacity:.8;
+      pointer-events:none;
+    }
+    @keyframes badgeSweep{
+      0%{ transform: translateX(-70%) rotate(12deg); opacity:0; }
+      30%{ opacity:.85; }
+      100%{ transform: translateX(70%) rotate(12deg); opacity:0; }
+    }
+    .success-check{
+      font-size: 34px;
+      filter: drop-shadow(0 0 18px rgba(72,214,255,.22));
+      animation: checkBounce .6s cubic-bezier(.2,.9,.2,1) both;
+    }
+    body[data-theme="shopio"] .success-check{
+      filter: drop-shadow(0 0 18px rgba(255,122,182,.22));
+    }
+    @keyframes checkBounce{
+      0%{ transform: scale(.7) rotate(-6deg); opacity:0; }
+      60%{ transform: scale(1.12) rotate(2deg); opacity:1; }
+      100%{ transform: scale(1) rotate(0deg); opacity:1; }
+    }
+
+    .success-title{
+      font-weight: 950;
+      letter-spacing:.2px;
+      font-size: 18px;
+      margin:0;
+      direction: rtl;
+    }
+    .success-sub{
+      margin:0;
+      color: rgba(255,255,255,.74);
+      font-size: 13px;
+      line-height: 1.5;
+      direction: rtl;
+    }
+    .success-actions{
+      margin-top: 6px;
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .success-actions .btn{
+      padding: 11px 13px;
+      border-radius: 14px;
+      font-size: 14px;
+    }
+
+    /* Confetti canvas */
+    #confetti{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10001;
+      display:none;
+    }
+    #confetti.show{ display:block; }
+
     @media (prefers-reduced-motion: reduce){
       body::before, body::after, .bg-rays, .blob{ animation: none !important; }
       .hero-title, .hero-title::after, .p-badge.fire{ animation: none !important; }
       .theme-wipe{ display:none !important; }
+      .success-badge::after{ animation:none !important; }
     }
   </style>
 </head>
@@ -892,7 +1046,7 @@
           معلومات الزبون <span class="mini">Commande</span>
         </div>
         <div style="color: rgba(255,255,255,.68); font-size: 13px; line-height:1.5;">
-          عمّر المعلومات باش نوجدو الطلب ديالك. (دابا غير عرض، من بعد نقدر نربطها ب Google Sheets).
+          عمّر المعلومات باش نوجدو الطلب ديالك.
         </div>
 
         <form id="clientForm" novalidate>
@@ -924,7 +1078,11 @@
           <div class="note">📌 من بعد نقدر نزيد quantity و color و size… حسب المنتج ديالك.</div>
 
           <div class="actions">
-            <button class="btn primary full" type="submit" id="btn" data-ripple>تأكيد الطلب</button>
+            <!-- ✅ Updated button: has spinner + text -->
+            <button class="btn primary full" type="submit" id="btn" data-ripple>
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="btn-text">تأكيد الطلب</span>
+            </button>
           </div>
         </form>
       </div>
@@ -1020,6 +1178,7 @@
     <div class="footer">© StoreName — Landing Page Demo</div>
   </div>
 
+  <!-- Toast -->
   <div id="toast" class="toast" aria-live="polite" aria-atomic="true">
     <div class="toast-icon" id="toastIcon">✅</div>
     <div class="toast-text">
@@ -1027,6 +1186,24 @@
       <div class="toast-sub" id="toastSub"></div>
     </div>
     <button class="toast-close" id="toastClose" aria-label="Close">✕</button>
+  </div>
+
+  <!-- ✅ Success celebration modal + confetti -->
+  <canvas id="confetti"></canvas>
+  <div class="success-modal" id="successModal" aria-hidden="true">
+    <div class="success-card" role="dialog" aria-modal="true" aria-label="Success">
+      <div class="success-inner">
+        <div class="success-badge">
+          <div class="success-check">✅</div>
+        </div>
+        <p class="success-title" id="successTitle">تم تسجيل الطلب بنجاح 🎉</p>
+        <p class="success-sub" id="successSub">غادي يتاصل بك الفريق قريباً. شكراً على الثقة!</p>
+        <div class="success-actions">
+          <button class="btn ghost" type="button" id="successClose">إغلاق</button>
+          <a class="btn primary" href="#product">رجع للمنتج</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1110,12 +1287,181 @@
     }
     toastClose.addEventListener("click", hideToast);
 
-    /* ✅ FORM + GOOGLE SHEETS (FIXED) */
+    /* ✅ FORM + GOOGLE SHEETS (ANTI-SPAM + WOW SUCCESS) */
     const form = document.getElementById("clientForm");
     const formSection = document.getElementById("form");
+    const btn = document.getElementById("btn");
 
     // 🔥 PUT YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoz_1r4AfAivP9PGTZFvfsCOazMFvVihpafVJUy7MbQijSU9vo_YsXloybFpJauf0k/exec";
+
+    // ✅ Anti-spam settings
+    const COOLDOWN_MS = 45000; // 45s cooldown per phone
+    const LOCK_KEY = "lp_submit_lock_v1"; // in-session lock
+    const LAST_KEY = "lp_last_submit_v1"; // localStorage: {phone, ts}
+
+    let isSubmitting = false;
+
+    function setLoading(on){
+      if(!btn) return;
+      btn.classList.toggle("loading", on);
+      btn.disabled = on;
+      btn.setAttribute("aria-busy", on ? "true" : "false");
+      const txt = btn.querySelector(".btn-text");
+      if(txt) txt.textContent = on ? "كنسيفطو الطلب..." : "تأكيد الطلب";
+    }
+
+    function getLast(){
+      try{
+        return JSON.parse(localStorage.getItem(LAST_KEY) || "null");
+      }catch(e){ return null; }
+    }
+    function setLast(phone){
+      try{
+        localStorage.setItem(LAST_KEY, JSON.stringify({ phone: phone || "", ts: Date.now() }));
+      }catch(e){}
+    }
+
+    function canSubmitNow(phone){
+      // Hard lock while request running
+      if (isSubmitting) return { ok:false, msg:"راه كنسيفطو دابا… صبر شوية" };
+
+      // Small session lock to block double-clicks instantly
+      const now = Date.now();
+      const sessionLock = Number(sessionStorage.getItem(LOCK_KEY) || "0");
+      if (sessionLock && now - sessionLock < 2500) {
+        return { ok:false, msg:"صبر شوية… حاول بعد ثواني" };
+      }
+
+      // Cooldown by phone in localStorage
+      const last = getLast();
+      if (last && last.phone && phone && last.phone === phone) {
+        const diff = now - Number(last.ts || 0);
+        if (diff < COOLDOWN_MS) {
+          const left = Math.ceil((COOLDOWN_MS - diff) / 1000);
+          return { ok:false, msg:`تقدر تعاود تطلب من بعد ${left} ثواني` };
+        }
+      }
+      return { ok:true };
+    }
+
+    /* ✅ WOW SUCCESS MODAL + CONFETTI */
+    const successModal = document.getElementById("successModal");
+    const successClose = document.getElementById("successClose");
+    const confettiCanvas = document.getElementById("confetti");
+    const cctx = confettiCanvas.getContext("2d", { alpha:true });
+
+    function openSuccess(){
+      // modal
+      successModal.classList.add("show");
+      successModal.setAttribute("aria-hidden", "false");
+
+      // confetti
+      confettiCanvas.classList.add("show");
+      resizeConfetti();
+      startConfetti();
+    }
+
+    function closeSuccess(){
+      successModal.classList.remove("show");
+      successModal.setAttribute("aria-hidden", "true");
+      stopConfetti();
+      confettiCanvas.classList.remove("show");
+    }
+
+    successClose.addEventListener("click", closeSuccess);
+    successModal.addEventListener("click", (e) => {
+      if(e.target === successModal) closeSuccess();
+    });
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "Escape" && successModal.classList.contains("show")) closeSuccess();
+    });
+
+    let confettiW=0, confettiH=0, confettiDPR=Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    function resizeConfetti(){
+      confettiW = window.innerWidth;
+      confettiH = window.innerHeight;
+      confettiCanvas.width = Math.floor(confettiW * confettiDPR);
+      confettiCanvas.height = Math.floor(confettiH * confettiDPR);
+      confettiCanvas.style.width = confettiW + "px";
+      confettiCanvas.style.height = confettiH + "px";
+      cctx.setTransform(confettiDPR,0,0,confettiDPR,0,0);
+    }
+    window.addEventListener("resize", resizeConfetti);
+
+    let confettiTimer = null;
+    let confettiParts = [];
+    function makeConfettiBurst(){
+      const centerX = confettiW * 0.5;
+      const centerY = confettiH * 0.35;
+      const themeShopio = document.body.getAttribute("data-theme") === "shopio";
+
+      // palette (no hard colors in charts rule doesn't apply to JS; this is UI)
+      const palette = themeShopio
+        ? ["rgba(255,122,182,0.95)","rgba(169,140,255,0.95)","rgba(255,255,255,0.92)","rgba(255,190,220,0.92)"]
+        : ["rgba(72,214,255,0.95)","rgba(26,167,255,0.95)","rgba(255,255,255,0.92)","rgba(124,243,255,0.92)"];
+
+      const count = 160;
+      for(let i=0;i<count;i++){
+        const ang = Math.random()*Math.PI*2;
+        const sp = 3 + Math.random()*5.5;
+        confettiParts.push({
+          x:centerX + (Math.random()*20-10),
+          y:centerY + (Math.random()*16-8),
+          vx: Math.cos(ang)*sp,
+          vy: Math.sin(ang)*sp - 2.2,
+          g: 0.10 + Math.random()*0.08,
+          s: 4 + Math.random()*5,
+          r: Math.random()*Math.PI,
+          vr: (Math.random()*0.22+0.06) * (Math.random()<0.5?-1:1),
+          a: 1,
+          life: 60 + Math.floor(Math.random()*45),
+          c: palette[(Math.random()*palette.length)|0]
+        });
+      }
+    }
+
+    function drawConfetti(){
+      cctx.clearRect(0,0,confettiW,confettiH);
+
+      for(const p of confettiParts){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.g;
+        p.r += p.vr;
+        p.life -= 1;
+        p.a = Math.max(0, p.life / 90);
+
+        cctx.save();
+        cctx.translate(p.x, p.y);
+        cctx.rotate(p.r);
+        cctx.globalAlpha = p.a;
+        cctx.fillStyle = p.c;
+        cctx.fillRect(-p.s/2, -p.s/2, p.s, p.s*0.62);
+        cctx.restore();
+      }
+      confettiParts = confettiParts.filter(p => p.life > 0 && p.y < confettiH + 40);
+      if(confettiParts.length === 0) {
+        stopConfetti();
+        confettiCanvas.classList.remove("show");
+      } else {
+        confettiTimer = requestAnimationFrame(drawConfetti);
+      }
+    }
+
+    function startConfetti(){
+      stopConfetti();
+      makeConfettiBurst();
+      drawConfetti();
+    }
+    function stopConfetti(){
+      if(confettiTimer){
+        cancelAnimationFrame(confettiTimer);
+        confettiTimer = null;
+      }
+      confettiParts = [];
+      cctx.clearRect(0,0,confettiW,confettiH);
+    }
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -1134,13 +1480,23 @@
         return;
       }
 
+      const phone = String(data.phone || "").trim();
+      const gate = canSubmitNow(phone);
+      if(!gate.ok){
+        showToast("بالصبر شوية ⏳", gate.msg || "حاول من بعد", false);
+        return;
+      }
+
+      // set locks
+      isSubmitting = true;
+      sessionStorage.setItem(LOCK_KEY, String(Date.now()));
+      setLoading(true);
       showToast("كنسيفطو الطلب…", "مرجو الانتظار", true);
 
-      // ✅ IMPORTANT FIX:
-      // Send as URLSearchParams / form data (Apps Script friendly)
+      // ✅ Send as URLSearchParams / form data (Apps Script friendly)
       const body = new URLSearchParams({
         fullname: (data.fullname || "").trim(),
-        phone: (data.phone || "").trim(),
+        phone: phone,
         city: (data.city || "").trim(),
         address: (data.address || "").trim(),
         note: (data.note || "").trim()
@@ -1151,21 +1507,26 @@
         body
       })
       .then(async (res) => {
-        // Apps Script sometimes returns text instead of JSON -> handle both
         const txt = await res.text();
         try { return JSON.parse(txt); }
         catch { return { ok: /ok|success|true/i.test(txt), raw: txt }; }
       })
       .then((res) => {
         if (res && res.ok) {
+          setLast(phone);              // ✅ start cooldown
           form.reset();
           showToast("تم تسجيل الطلب بنجاح ✅", "غادي يتاصل بك الفريق قريباً", true);
+          openSuccess();               // ✅ WOW animation
         } else {
           showToast("وقع مشكل ❌", "تأكد من رابط السكريبت ولا الإعدادات", false);
         }
       })
       .catch(() => {
         showToast("خطأ فالاتصال ❌", "تأكد من الانترنت ولا الرابط", false);
+      })
+      .finally(() => {
+        isSubmitting = false;
+        setLoading(false);
       });
     });
 
